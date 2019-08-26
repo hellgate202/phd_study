@@ -36,12 +36,9 @@ def findBlockInArea( area, block ):
         min_cost = cost
         min_y = y
         min_x = x
-  print( min_y, min_x )
   return( min_y, min_x )
 
 def findMotionVector( area0, area1, bs ):
-  cv2.imshow('area0', area0)
-  cv2.imshow('area1', area1)
   area0_size_y = area0.shape[0]
   area0_size_x = area0.shape[1]
   block_corner_y = ( area0_size_y - bs ) // 2
@@ -50,23 +47,64 @@ def findMotionVector( area0, area1, bs ):
   (y,x) = findBlockInArea( area1, block )
   rel_y = block_corner_y - y
   rel_x = x - block_corner_x
-  print( rel_x, rel_y )
   v_abs = math.sqrt( ( rel_y ** 2 + rel_x ** 2 ) )
-  tang = rel_y / rel_x
-  if( rel_x > 0 ):
-    v_dir = math.atan( tang )
+  if rel_y > 0 and rel_x >= 0:
+    if rel_x == 0:
+      v_dir = math.pi / 2
+    else:
+      v_dir = math.atan( rel_y / rel_x )
+  elif rel_y >= 0 and rel_x < 0:
+    if rel_y == 0:
+      v_dir = math.pi
+    else:
+      v_dir = math.atan( rel_x / rel_y ) + math.pi / 2
+  elif rel_y < 0 and rel_x <= 0:
+    if rel_x == 0:
+      v_dir = math.pi * 3 / 2
+    else:
+      v_dir = math.atan( rel_y / rel_x ) + math.pi
+  elif rel_x > 0 and rel_y <= 0:
+    if rel_y == 0:
+      v_dir = 0
+    else:
+      v_dir = math.atan( rel_x / rel_y ) + 3 * math.pi / 2
   else:
-    v_dir = math.atan( tang )
+    v_dir = 0
+  v_dir = v_dir * 180 / math.pi
   return( v_abs, v_dir )
 
-(y,x) = findMotionVector( frame_0[240:430,150:340], frame_1[240:430,150:340], 31 )
+def motionDetection ( img0, img1, bs ):
+  img_size_y = img0.shape[0]
+  img_size_x = img0.shape[1]
+  line_list = []
+  frame_list = []
+  bs_amount_y = img_size_y // bs
+  bs_amount_x = img_size_x // bs
+  scan_y = bs_amount_y * bs
+  scan_x = bs_amount_x * bs
+  for y in range( bs, scan_y, bs ):
+    for x in range( bs, scan_x, bs ):
+      area0 = img0[y - bs : y + 2 * bs, x - bs : x + 2 * bs]
+      area1 = img1[y - bs : y + 2 * bs, x - bs : x + 2 * bs]
+      (v_abs,v_dir) = findMotionVector( area0, area1, bs )
+      line_list.append( (v_abs,v_dir) )
+    frame_list.append( line_list )
+    line_list = []
+  return frame_list
 
+bs = 15
+
+frame_list = motionDetection( frame_0, frame_1, bs )
+o_img = frame_0
+#print( frame_list )
+for y, line in enumerate( frame_list ):
+  for x, block in enumerate( line ):
+    if block[0] > 0:
+      rec_corner_0 = (( x + 1 ) * bs,( y + 1 ) * bs)
+      rec_corner_1 = (( x + 2 ) * bs,( y + 2 ) * bs)
+      cv2.rectangle( o_img, rec_corner_0, rec_corner_1, (block[0]*10,block[0]*10,block[0]*10), 1 )
+
+cv2.imshow( 'o_img', o_img )
 cv2.waitKey( 0 )
 cv2.destroyAllWindows()
-print( y,x )
 exit()
-
-cv2.imshow( 'frame0', frame_list[0] )
-cv2.imshow( 'frame119', frame_list[119] )
-cv2.waitKey( 0 )
-cv2.destroyAllWindows()
