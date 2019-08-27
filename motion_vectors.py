@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import sys
 import math
+import matplotlib.pyplot as plt
 
 frames_amount = 2
 
@@ -27,12 +28,17 @@ def findBlockInArea( area, block ):
   area_size_x  = area.shape[1]
   block_size_y = block.shape[0]
   block_size_x = block.shape[1]
-  min_cost = math.inf
+  center_corner_y = ( area_size_y - block_size_y ) // 2
+  center_corner_x = ( area_size_x - block_size_x ) // 2 
+  area_block = area[center_corner_y : center_corner_y + block_size_y, center_corner_x : center_corner_x + block_size_x]
+  min_cost = mse2D( area_block.astype( np.float64 ), block.astype( np.float64 ) )
+  min_y = center_corner_y
+  min_x = center_corner_x
   for y in range( 0, area_size_y - block_size_y + 1 ):
     for x in range( 0, area_size_x - block_size_x + 1 ):
       area_block = area[y : y + block_size_y, x : x + block_size_x]
       cost = mse2D( area_block.astype( np.float64 ), block.astype( np.float64 ) )
-      if( cost < min_cost ):
+      if cost + 500 < min_cost:
         min_cost = cost
         min_y = y
         min_x = x
@@ -92,19 +98,19 @@ def motionDetection ( img0, img1, bs ):
     line_list = []
   return frame_list
 
-bs = 15
+bs = 5
 
-frame_list = motionDetection( frame_0, frame_1, bs )
-o_img = frame_0
-#print( frame_list )
+img0 = frame_0
+img1 = frame_1
+
+frame_list = motionDetection( frame_1, frame_0, bs )
 for y, line in enumerate( frame_list ):
   for x, block in enumerate( line ):
     if block[0] > 0:
       rec_corner_0 = (( x + 1 ) * bs,( y + 1 ) * bs)
       rec_corner_1 = (( x + 2 ) * bs,( y + 2 ) * bs)
-      cv2.rectangle( o_img, rec_corner_0, rec_corner_1, (block[0]*10,block[0]*10,block[0]*10), 1 )
+      cv2.rectangle( img0, rec_corner_0, rec_corner_1, (0,0,0), 1 )
+      cv2.rectangle( img1, rec_corner_0, rec_corner_1, (0,0,0), 1 )
 
-cv2.imshow( 'o_img', o_img )
-cv2.waitKey( 0 )
-cv2.destroyAllWindows()
-exit()
+plt.imshow(img0, cmap='gray')
+plt.show()
