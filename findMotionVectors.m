@@ -18,14 +18,16 @@ function [vec_length, vec_angle, motion_blocks] = findMotionVectors( frame_0, fr
         search_area = frame_1(search_area_y : search_area_y + block_size_y * 3 - 1,...
                               search_area_x : search_area_x + block_size_x * 3 - 1);
         [new_pos_y, new_pos_x] = findPatch( patch, search_area );
-        vec_length(y,x) = sqrt( ( new_pos_y - patch_y ) ^ 2 +...
-                                ( new_pos_x - patch_x ) ^ 2 );
-        if vec_length(y,x) < min_length
+        length = sqrt( ( new_pos_y - block_size_y - 1 ) ^ 2 +...
+                       ( new_pos_x - block_size_x - 1 ) ^ 2 );
+        if length > min_length
+          angle = findAngle( new_pos_y - block_size_y - 1, new_pos_x - block_size_x - 1 );
+          vec_length(y,x) = length;
+          vec_angle(y,x) = angle;
+          motion_blocks(y,x) = 1;
+        else
           vec_length(y,x) = 0;
           vec_angle(y,x) = 0;
-        else
-          vec_angle(y,x) = findAngle( new_pos_y - patch_y, new_pos_x - patch_x );
-          motion_blocks(y,x) = 1;
         end
       end
     end
