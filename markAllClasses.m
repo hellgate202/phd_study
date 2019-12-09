@@ -7,9 +7,9 @@ function output_img = markAllClasses( img, classes_amount, classes, figure, bloc
     green = uint8( mod( color, 2 ^ 16 ) / 2 ^ 8 );
     blue = uint8( color / 2 ^ 16 );
     if figure == "rectangle"
-      output_img = placeBoxesOnClass( output_img, i, classes, [red,green,blue] );
+      output_img = placeBoxesOnClass( output_img, i, classes, [255,0,0] );
     elseif figure == "elipse"
-      output_img = drawElipseByData( output_img, i, classes, [red,green,blue], block_size );
+      output_img = drawElipseByData( output_img, i, classes, [255,0,0], block_size );
     end
   end
 end

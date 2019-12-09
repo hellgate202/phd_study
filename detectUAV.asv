@@ -1,14 +1,19 @@
 clc;
 close all;
 clearvars;
-MOTION_BLOCK_SIZE = 13;
-MOTION_THRESHOLD  = 1;
-DETAIL_THRESHOLD  = 80;
+VIDEO_FILE = "./video_example.mp4";
+FRAMES_AMOUNT = 300;
+MOTION_BLOCK_SIZE = 15;
+MOTION_THRESHOLD  = 5;
+DETAIL_THRESHOLD  = 40;
 VECTOR_GROUP_SEARCH_AREA = 5;
-VECTOR_TOLLERANCE = 3*pi / 4;
-orig_frame_0 = imread( "./frame_0.png" );
-orig_frame_1 = imread( "./frame_1.png" );
-frame_0 = rgb2gray( orig_frame_0 );
+VECTOR_TOLLERANCE = pi / 2;
+v = VideoReader( VIDEO_FILE );
+frames = read( v, [1 FRAMES_AMOUNT] );
+for f = 1 : 1 : FRAMES_AMOUNT
+  orig_frame_0 = frames(:,:,:,1);%imread( "./frame_0.png" );
+  orig_frame_1 = frames(:,:,:,2);%imread( "./frame_1.png" );
+  frame_0 = rgb2gray( orig_frame_0 );
 frame_0 = imresize( frame_0, ceil( size( frame_0 ) ./ MOTION_BLOCK_SIZE ) .* MOTION_BLOCK_SIZE );
 orig_frame_0 = imresize( orig_frame_0, size( frame_0 ) );
 frame_1 = rgb2gray( orig_frame_1 );
@@ -18,5 +23,6 @@ det_img = multiscaleMorphGrad( frame_0, [3, 5, 7] );
 det_blocks = findDetailedBlocks( det_img, MOTION_BLOCK_SIZE, DETAIL_THRESHOLD );
 [vec_length, vec_orient, vec_map] = findMotionVectors( frame_0, frame_1, det_blocks, MOTION_THRESHOLD );
 [vec_groups, groups_amount] = findVectorGroups( vec_orient, VECTOR_TOLLERANCE, VECTOR_GROUP_SEARCH_AREA );
-[clascov, mean_x]
-imshow( markAllClasses( orig_frame_0, groups_amount, vec_groups ) );
+all_class_img = markAllClasses( orig_frame_0, groups_amount, vec_groups, 'elipse', MOTION_BLOCK_SIZE );
+all_class_img = placeBoxes( all_class_img, vec_map, [0,255,0] );
+imshow( all_class_img );
