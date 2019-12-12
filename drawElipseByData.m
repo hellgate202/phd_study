@@ -31,9 +31,15 @@ function output_img = drawElipseByData( img, class_num, classes, color, block_si
       elipse_y = img_size_y;
     end
     img( elipse_y, elipse_x, : ) = color;
-    img( elipse_y + 1, elipse_x, : ) = color;
-    img( elipse_y, elipse_x + 1, : ) = color;
-    img( elipse_y + 1, elipse_x + 1, : ) = color;
+    if elipse_y ~= img_size_y
+      img( elipse_y + 1, elipse_x, : ) = color;
+    end
+    if elipse_x ~= img_size_x
+      img( elipse_y, elipse_x + 1, : ) = color;
+    end
+    if elipse_y ~= img_size_y && elipse_x ~= img_size_x
+      img( elipse_y + 1, elipse_x + 1, : ) = color;
+    end
   end
   output_img = img;
 end

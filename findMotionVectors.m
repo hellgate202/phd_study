@@ -1,4 +1,4 @@
-function [vec_length, vec_angle, motion_blocks] = findMotionVectors( frame_0, frame_1, block_map, min_length )
+function [vec_length, vec_angle, motion_blocks] = findMotionVectors( frame_0, frame_1, block_map, min_length, MSE_THRESHOLD )
   [block_map_size_y, block_map_size_x] = size( block_map );
   block_size = size( frame_0 ) ./ size( block_map );
   block_size_y = block_size(1);
@@ -17,7 +17,7 @@ function [vec_length, vec_angle, motion_blocks] = findMotionVectors( frame_0, fr
                         patch_x : patch_x + block_size_x - 1);
         search_area = frame_1(search_area_y : search_area_y + block_size_y * 3 - 1,...
                               search_area_x : search_area_x + block_size_x * 3 - 1);
-        [new_pos_y, new_pos_x] = findPatch( patch, search_area );
+        [new_pos_y, new_pos_x] = findPatch( patch, search_area, MSE_THRESHOLD );
         length = sqrt( ( new_pos_y - block_size_y - 1 ) ^ 2 +...
                        ( new_pos_x - block_size_x - 1 ) ^ 2 );
         if length > min_length
