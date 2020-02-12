@@ -1,59 +1,59 @@
 #include <stdio.h>
+#include <iostream>
 #include <math.h>
-#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/videoio.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 #include "find_motion_blocks.hpp"
-
-using namespace cv;
-using namespace std;
-
-void find_motion_blocks(InputArray _img, InputArray _next_img, int block_size, 
-                        OutputArray _motion_map);
 
 int main(int argc, char** argv) {
   if (argc != 3)
   {
-    printf("Usage: DisplayVideo <Video_Path> <Block_size>\n");
+    std::cout << "Usage: DisplayVideo <Video_Path> <Block_size>\n" << std::endl;
     return -1;
   }
-  Mat frame;
-  Mat next_frame;
-  Mat interframe_difference;
-  Mat block;
+  cv::Mat frame;
+  cv::Mat next_frame;
+  cv::Mat interframe_difference;
+  cv::Mat block;
   // ROI for block processing
-  Rect roi;
-  int fps, frame_width, frame_height;
+  int fps;
   int frame_period;
-  int block_size = stoi( argv[2] );
-  VideoCapture video_file;
+  int block_size = std::stoi( argv[2] );
+  cv::VideoCapture video_file;
   // Opening a video file
   video_file.open(argv[1]);
   if(!video_file.isOpened()) {
-    cerr << "ERROR! Unable to open the file\n";
+    std::cerr << "ERROR! Unable to open the file\n";
     return -1;
   }
   // Getting video information
-  fps = video_file.get(CAP_PROP_FPS);
+  fps = video_file.get(cv::CAP_PROP_FPS);
   frame_period = 1000 / fps;
   // Getting first frame
   video_file.read(frame);
-  cvtColor(frame, frame, COLOR_BGR2GRAY);
+  cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
   if(frame.empty())
     return -1;
   // Getting second frame;
   video_file.read(next_frame);
-  cvtColor(next_frame, next_frame, COLOR_BGR2GRAY);
+  cv::cvtColor(next_frame, next_frame, cv::COLOR_BGR2GRAY);
   if(next_frame.empty())
     return -1;
-  Mat motion_blocks;
+  cv::Mat motion_blocks;
   for(;;)
   {
     find_motion_blocks(frame, next_frame, block_size, motion_blocks);
+    std::cout << motion_blocks << std::endl;
+    place_boxes(frame, 10, next_frame);
+    return 0;
     imshow("Video", motion_blocks);
-    if (waitKey(5) >= 0)
+    if (cv::waitKey(5) >= 0)
       break;
     next_frame.copyTo(frame);
     video_file.read(next_frame);
-    cvtColor(next_frame, next_frame, COLOR_BGR2GRAY);
+    cv::cvtColor(next_frame, next_frame, cv::COLOR_BGR2GRAY);
     if(next_frame.empty())
       return 0;
   }
