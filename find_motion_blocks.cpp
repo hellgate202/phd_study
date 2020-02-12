@@ -9,16 +9,17 @@ void find_motion_blocks(cv::InputArray _img, cv::InputArray _next_img, int block
   // Images must be the same
   CV_Assert(img.type() == next_img.type() && img.size() == next_img.size());
   //_motion_map.create(img.size(), img.type());
-  _motion_map.create(img.cols / block_size, img.rows / block_size, img.type());
+  _motion_map.create(img.rows / block_size, img.cols / block_size, img.type());
   cv::Mat motion_map = _motion_map.getMat();
-  motion_map = cv::Mat::zeros(img.cols / block_size, img.rows / block_size, CV_8U);
+  motion_map = cv::Mat::zeros(img.rows / block_size, img.cols / block_size, CV_8U);
   int img_width = img.cols;
   int img_height = img.rows;
   int px_amount = img_width * img_height;
   cv::Mat interframe_difference;
+  img.convertTo(img, CV_16S);
+  next_img.convertTo(next_img, CV_16S);
   cv::subtract(next_img, img, interframe_difference);
-  // Making interframe difference signed
-  interframe_difference.convertTo(interframe_difference, CV_16S);
+  interframe_difference = cv::abs(interframe_difference);
   // Average motion on frames
   double mean_motion = cv::sum(interframe_difference)[0] / px_amount;
   cv::Mat mean_delta;
@@ -32,10 +33,8 @@ void find_motion_blocks(cv::InputArray _img, cv::InputArray _next_img, int block
   double mean_in_block;
   cv::Rect roi;
   cv::Mat roi_block;
-  // Black block for visualization
-  cv::Mat empty_block = cv::Mat::zeros(block_size, block_size, CV_8U);
-  for(int y = 0; y <= (img_height - block_size - 1); y += block_size)
-    for(int x = 0; x <= (img_width - block_size - 1); x += block_size)
+  for(int y = 0; y <= (img_height - block_size); y += block_size)
+    for(int x = 0; x <= (img_width - block_size); x += block_size)
     {
       roi.x = x;
       roi.y = y;
@@ -44,14 +43,24 @@ void find_motion_blocks(cv::InputArray _img, cv::InputArray _next_img, int block
       roi_block = interframe_difference(roi);
       mean_in_block = cv::sum(roi_block)[0] / std::pow(block_size, 2);
       // If motion is higher than RSMD and mean than we treat it as movement block
-      if(mean_in_block < (rsmd_motion + mean_motion) || mean_in_block < 10)
+      if(mean_in_block > (rsmd_motion + mean_motion) && mean_in_block > 10)
         motion_map.at<uchar>(y / block_size, x / block_size) = 1;
     }
 }
 
-void place_boxes(cv::InputArray _src, int block_size, cv::OutputArray _dst,
-                 cv::Vec3b color)
+void place_boxes(cv::InputArray _src, cv::InputArray _boxes_map, int block_size,
+                 cv::OutputArray _dst, cv::Vec3b color)
 {
-  std::cout << color << std::endl;
+  cv::Mat src = _src.getMat();
+  cv::Mat boxes_map = _boxes_map.getMat();
+  cv::cvtColor(src, src, cv::COLOR_GRAY2BGR);
+  _dst.create(src.size(), src.type());
+  cv::Mat dst = _dst.getMat();
+  src.copyTo(dst);
+  for(int y = 0; y < boxes_map.rows; y++)
+    for( int x = 0; x < boxes_map.cols; x++)
+      if( boxes_map.at<uchar>(y,x) > 0 )
+        cv::rectangle(dst, cv::Point(x * block_size, y * block_size),
+                      cv::Point((x + 1) * block_size, (y + 1) * block_size), color);
 }
 

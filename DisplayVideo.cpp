@@ -42,14 +42,13 @@ int main(int argc, char** argv) {
   if(next_frame.empty())
     return -1;
   cv::Mat motion_blocks;
+  cv::Mat visual;
   for(;;)
   {
-    find_motion_blocks(frame, next_frame, block_size, motion_blocks);
-    std::cout << motion_blocks << std::endl;
-    place_boxes(frame, 10, next_frame);
-    return 0;
-    imshow("Video", motion_blocks);
-    if (cv::waitKey(5) >= 0)
+    find_motion_blocks(next_frame, frame, block_size, motion_blocks);
+    place_boxes(frame, motion_blocks, block_size, visual);
+    imshow("Video", visual);
+    if (cv::waitKey(frame_period / 2) >= 0)
       break;
     next_frame.copyTo(frame);
     video_file.read(next_frame);
