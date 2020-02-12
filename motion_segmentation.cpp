@@ -5,7 +5,7 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
-#include "find_motion_blocks.hpp"
+#include "motion_segmentation.hpp"
 
 int main(int argc, char** argv) {
   if (argc != 3)
