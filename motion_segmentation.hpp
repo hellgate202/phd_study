@@ -12,4 +12,7 @@ void find_motion_blocks(cv::InputArray _img, cv::InputArray _next_img, int block
 void place_boxes(cv::InputArray _src, cv::InputArray _boxes_map, int block_size, 
                  cv::OutputArray _dst, cv::Vec3b color = cv::Vec3b(0, 0, 255));
 
+void estimate_motion_vectors(cv::InputArray _img, cv::InputArray _next_img, int block_size,
+                             cv::OutputArray _motion_vector_map, cv::InputArray _mask);
+
 #endif

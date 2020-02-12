@@ -43,10 +43,14 @@ int main(int argc, char** argv) {
     return -1;
   cv::Mat motion_blocks;
   cv::Mat visual;
+  cv::Mat motion_vectors;
   for(;;)
   {
-    find_motion_blocks(next_frame, frame, block_size, motion_blocks);
+    find_motion_blocks(frame, next_frame, block_size, motion_blocks);
     place_boxes(frame, motion_blocks, block_size, visual);
+    estimate_motion_vectors(frame, next_frame, block_size, motion_vectors, 
+                            cv::Mat::ones(2,2,CV_8U));
+    return 0;
     imshow("Video", visual);
     if (cv::waitKey(frame_period / 2) >= 0)
       break;
