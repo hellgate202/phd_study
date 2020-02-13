@@ -44,14 +44,16 @@ int main(int argc, char** argv) {
   cv::Mat motion_blocks;
   cv::Mat visual;
   cv::Mat motion_vectors;
+  cv::Mat vis_motion;
   for(;;)
   {
     find_motion_blocks(frame, next_frame, block_size, motion_blocks);
     place_boxes(frame, motion_blocks, block_size, visual);
     estimate_motion_vectors(frame, next_frame, block_size, motion_vectors, 
                             motion_blocks);
-    imshow("Video", visual);
-    if (cv::waitKey(5) >= 0)
+    visualize_motion_vectors(block_size, motion_vectors, vis_motion);
+    cv::imshow("Video", vis_motion);
+    if (cv::waitKey(frame_period / 2) >= 0)
       break;
     next_frame.copyTo(frame);
     video_file.read(next_frame);
