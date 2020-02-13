@@ -49,10 +49,9 @@ int main(int argc, char** argv) {
     find_motion_blocks(frame, next_frame, block_size, motion_blocks);
     place_boxes(frame, motion_blocks, block_size, visual);
     estimate_motion_vectors(frame, next_frame, block_size, motion_vectors, 
-                            cv::Mat::ones(2,2,CV_8U));
-    return 0;
+                            motion_blocks);
     imshow("Video", visual);
-    if (cv::waitKey(frame_period / 2) >= 0)
+    if (cv::waitKey(5) >= 0)
       break;
     next_frame.copyTo(frame);
     video_file.read(next_frame);
