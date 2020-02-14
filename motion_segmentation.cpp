@@ -49,8 +49,14 @@ int main(int argc, char** argv) {
   cv::Mat boxes_on_motion;
   cv::Mat motion_vectors;
   cv::Mat visualized_motion_vectors;
+  cv::Mat mult_grad_img;
+  cv::Mat mult_grad_img_0;
   for(;;)
   {
+    //multiscale_morph_grad(frame, mult_grad_img, {1,3,5,7});
+    //cv::imshow("Morph Grad", mult_grad_img);
+    //cv::waitKey(0);
+    //return 0;
     find_motion_blocks(frame, next_frame, block_size, motion_blocks);
     place_boxes(frame_color, motion_blocks, block_size, boxes_on_motion, cv::Vec3b(0,255,0));
     estimate_motion_vectors(frame, next_frame, block_size, motion_vectors, 
