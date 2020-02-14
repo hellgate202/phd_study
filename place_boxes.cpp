@@ -5,7 +5,8 @@ void place_boxes(cv::InputArray _src, cv::InputArray _boxes_map, int block_size,
 {
   cv::Mat src = _src.getMat();
   cv::Mat boxes_map = _boxes_map.getMat();
-  cv::cvtColor(src, src, cv::COLOR_GRAY2BGR);
+  if(src.channels() == 1)
+    cv::cvtColor(src, src, cv::COLOR_GRAY2BGR);
   _dst.create(src.size(), src.type());
   cv::Mat dst = _dst.getMat();
   src.copyTo(dst);
