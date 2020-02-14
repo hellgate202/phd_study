@@ -55,6 +55,7 @@ int main(int argc, char** argv) {
     cv::imshow("Video", vis_motion);
     if (cv::waitKey(frame_period / 2) >= 0)
       break;
+   // cv::waitKey(0);
     next_frame.copyTo(frame);
     video_file.read(next_frame);
     cv::cvtColor(next_frame, next_frame, cv::COLOR_BGR2GRAY);

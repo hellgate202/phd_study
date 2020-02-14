@@ -41,8 +41,8 @@ void estimate_motion_vectors(cv::InputArray _img, cv::InputArray _next_img, int 
   double vector_angle;
   int motion_vec_y;
   int motion_vec_x;
-  cv::Mat mse_in_area(search_area_coords.height - found_block_coords.height,
-                      search_area_coords.width - found_block_coords.width, CV_64F);
+  cv::Mat mse_in_area(search_area_coords.height - found_block_coords.height + 1,
+                      search_area_coords.width - found_block_coords.width + 1, CV_64F);
   cv::Point min_mse_pos;
   // Loop over all image (mask)
   for(int y = 1; y < (mask.rows - 1); y++)
@@ -52,18 +52,18 @@ void estimate_motion_vectors(cv::InputArray _img, cv::InputArray _next_img, int 
         // Preparing block in current frame
         searched_block_coords.x = x * block_size;
         searched_block_coords.y = y * block_size;
-        searched_block = img(searched_block_coords);
+        img(searched_block_coords).copyTo(searched_block);
         // Prepating area in next frame
         search_area_coords.x = searched_block_coords.x - block_in_area_delta;
         search_area_coords.y = searched_block_coords.y - block_in_area_delta;
-        search_area = next_img(search_area_coords);
+        next_img(search_area_coords).copyTo(search_area);
         // Loop over search area
-        for(int area_y = 0; area_y < (search_area_coords.height - found_block_coords.height); area_y++)
-          for(int area_x = 0; area_x < (search_area_coords.width - found_block_coords.width); area_x++)
+        for(int area_y = 0; area_y < (search_area_coords.height - found_block_coords.height + 1); area_y++)
+          for(int area_x = 0; area_x < (search_area_coords.width - found_block_coords.width + 1); area_x++)
           {
-            found_block_coords.x = area_x;
             found_block_coords.y = area_y;
-            found_block = search_area(found_block_coords);
+            found_block_coords.x = area_x;
+            search_area(found_block_coords).copyTo(found_block);
             cv::subtract(searched_block, found_block, found_block);
             cv::pow(found_block, 2, found_block);
             mse = cv::sum(found_block)[0] / std::pow(block_size, 2);

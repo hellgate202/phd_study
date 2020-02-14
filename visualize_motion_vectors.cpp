@@ -1,5 +1,4 @@
 #include "motion_segmentation.hpp"
-#include <iostream>
 #include <math.h>
 
 void visualize_motion_vectors(int block_size, cv::InputArray _motion_vector_map,
