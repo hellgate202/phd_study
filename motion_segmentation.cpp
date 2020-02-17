@@ -24,22 +24,18 @@ int main(int argc, char** argv) {
   int frame_period;
   int block_size = std::stoi( argv[2] );
   cv::VideoCapture video_file;
-  // Opening a video file
   video_file.open(argv[1]);
   if(!video_file.isOpened()) {
     std::cerr << "ERROR! Unable to open the file\n";
     return -1;
   }
-  // Getting video information
   fps = video_file.get(cv::CAP_PROP_FPS);
   frame_period = 1000 / fps;
-  // Getting first frame
   video_file.read(frame);
   frame.copyTo(frame_color);
   cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
   if(frame.empty())
     return -1;
-  // Getting second frame;
   video_file.read(next_frame);
   next_frame.copyTo(next_frame_color);
   cv::cvtColor(next_frame, next_frame, cv::COLOR_BGR2GRAY);
@@ -51,12 +47,11 @@ int main(int argc, char** argv) {
   cv::Mat visualized_motion_vectors;
   cv::Mat mult_grad_img;
   cv::Mat mult_grad_img_0;
+  cv::Mat rf_map;
   for(;;)
   {
-    //multiscale_morph_grad(frame, mult_grad_img, {1,3,5,7});
-    //cv::imshow("Morph Grad", mult_grad_img);
-    //cv::waitKey(0);
-    //return 0;
+    rosenfeld_troy_estimation(frame, block_size, rf_map);
+    return 0;
     find_motion_blocks(frame, next_frame, block_size, motion_blocks);
     place_boxes(frame_color, motion_blocks, block_size, boxes_on_motion, cv::Vec3b(0,255,0));
     estimate_motion_vectors(frame, next_frame, block_size, motion_vectors, 

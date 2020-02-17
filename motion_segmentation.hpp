@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
+#include <math.h>
 
 void find_motion_blocks(cv::InputArray _img, cv::InputArray _next_img, int block_size, 
                         cv::OutputArray _motion_map);
@@ -24,5 +25,7 @@ void visualize_motion_vectors(cv::InputArray _background, int block_size,
 
 void multiscale_morph_grad (cv::InputArray _src, cv::OutputArray _dst,
                             std::vector<int> sizes = {1,3,5,7});
+
+void rosenfeld_troy_estimation(cv::InputArray _img, int block_size, cv::OutputArray _rf_map);
 
 #endif
