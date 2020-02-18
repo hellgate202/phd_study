@@ -28,4 +28,8 @@ void multiscale_morph_grad (cv::InputArray _src, cv::OutputArray _dst,
 
 void rosenfeld_troy_estimation(cv::InputArray _img, int block_size, cv::OutputArray _rf_map);
 
+void simple_hist(cv::Mat src, cv::Mat &dst);
+
+void find_detailed_blocks(cv::Mat img, int block_size, cv::Mat &det_map);
+
 #endif

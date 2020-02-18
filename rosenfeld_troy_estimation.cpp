@@ -19,7 +19,7 @@ void rosenfeld_troy_estimation(cv::InputArray _img, int block_size, cv::OutputAr
     {
       roi.x = x;
       roi.y = y;
-      img(roi).copyTo(roi_block);
+      hf_map(roi).copyTo(roi_block);
       rf_in_block = cv::sum(roi_block)[0] / std::pow(block_size, 2);
       rf_map.at<uchar>(y / block_size, x / block_size) = rf_in_block;
     }

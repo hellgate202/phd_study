@@ -45,14 +45,14 @@ int main(int argc, char** argv) {
   cv::Mat boxes_on_motion;
   cv::Mat motion_vectors;
   cv::Mat visualized_motion_vectors;
-  cv::Mat mult_grad_img;
-  cv::Mat mult_grad_img_0;
-  cv::Mat rf_map;
+  cv::Mat hf_img;
+  cv::Mat det_map;
   for(;;)
   {
-    rosenfeld_troy_estimation(frame, block_size, rf_map);
-    return 0;
+    multiscale_morph_grad(frame, hf_img, {1,3,5,7});
+    find_detailed_blocks(frame, block_size, det_map);
     find_motion_blocks(frame, next_frame, block_size, motion_blocks);
+    cv::bitwise_and(det_map, motion_blocks, motion_blocks);
     place_boxes(frame_color, motion_blocks, block_size, boxes_on_motion, cv::Vec3b(0,255,0));
     estimate_motion_vectors(frame, next_frame, block_size, motion_vectors, 
                             motion_blocks);
