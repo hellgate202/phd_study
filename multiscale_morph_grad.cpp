@@ -1,28 +1,36 @@
-#include "motion_segmentation.hpp"
+/*
+ * Function calculates multiscale morphological gradient
+ * over entire image. It is usefull to extract high
+ * frequency information
+ */
 
-void multiscale_morph_grad (cv::InputArray _src, cv::OutputArray _dst, std::vector<int> sizes)
+
+#include "motion_segmentation.hpp"
+#include <opencv2/core.hpp>
+
+void multiscale_morph_grad (cv::Mat src, cv::Mat &dst, std::vector<int> sizes)
 {
-  cv::Mat src = _src.getMat();
   src.convertTo(src, CV_16S);
-  _dst.create(src.size(), src.type());
-  cv::Mat dst = _dst.getMat();
+  dst = cv::Mat::zeros(src.size(), CV_16S);
+  // Two kernels, because we will erode with previous size kernel
   cv::Mat kernel;
   cv::Mat previous_kernel;
   cv::Mat dilatated_img;
   cv::Mat eroded_img;
+  // Dilatation - erosion
   cv::Mat morph_grad;
-  cv::Mat accum = cv::Mat::zeros(src.size(), CV_16S);
   for(int i = 1; i < sizes.size(); i++)
   {
+    // Only square kernels are supported
     kernel = cv::Mat::ones(cv::Size(sizes[i], sizes[i]), CV_8U);
     previous_kernel = cv::Mat::ones(cv::Size(sizes[i - 1], sizes[i - 1]), CV_8U);
     cv::dilate(src, dilatated_img, kernel);
     cv::erode(src, eroded_img, kernel);
     cv::subtract(dilatated_img, eroded_img, morph_grad);
     cv::erode(morph_grad, morph_grad, previous_kernel);
-    cv::add(morph_grad, accum, accum);
+    cv::add(morph_grad, dst, dst);
   }
-  cv::divide(accum, cv::Scalar(sizes.size() - 1), accum);
-  accum.convertTo(accum, CV_8U);
-  accum.copyTo(_dst);
+  // Find mean of accumulated values
+  cv::divide(dst, cv::Scalar(sizes.size() - 1), dst);
+  dst.convertTo(dst, CV_8U);
 }

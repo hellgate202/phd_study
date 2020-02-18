@@ -10,23 +10,21 @@
 #include <vector>
 #include <math.h>
 
-void find_motion_blocks(cv::InputArray _img, cv::InputArray _next_img, int block_size, 
-                        cv::OutputArray _motion_map);
+void find_motion_blocks(cv::Mat img, cv::Mat next_img, int block_size, cv::Mat &motion_map);
 
-void place_boxes(cv::InputArray _src, cv::InputArray _boxes_map, int block_size, 
-                 cv::OutputArray _dst, cv::Vec3b color = cv::Vec3b(0, 0, 255));
+void place_boxes(cv::Mat src, cv::Mat boxes_map, int block_size, 
+                 cv::Mat &dst, cv::Vec3b color = cv::Vec3b(0, 0, 255));
 
-void estimate_motion_vectors(cv::InputArray _img, cv::InputArray _next_img, int block_size,
-                             cv::OutputArray _motion_vector_map, cv::InputArray _mask);
+void estimate_motion_vectors(cv::Mat img, cv::Mat next_img, int block_size,
+                             cv::Mat mask, cv::Mat &motion_vector_map);
 
-void visualize_motion_vectors(cv::InputArray _background, int block_size, 
-                              cv::InputArray _motion_vector_map, cv::OutputArray _visualized_img,
+void visualize_motion_vectors(cv::Mat background, int block_size, 
+                              cv::Mat motion_vector_map, cv::Mat &visualized_img,
                               cv::Vec3b color = cv::Vec3b(0, 0, 255));
 
-void multiscale_morph_grad (cv::InputArray _src, cv::OutputArray _dst,
-                            std::vector<int> sizes = {1,3,5,7});
+void multiscale_morph_grad (cv::Mat src, cv::Mat &dst, std::vector<int> sizes = {1,3,5,7});
 
-void rosenfeld_troy_estimation(cv::InputArray _img, int block_size, cv::OutputArray _rf_map);
+void rosenfeld_troy_measure(cv::Mat img, int block_size, cv::Mat &rf_map);
 
 void simple_hist(cv::Mat src, cv::Mat &dst);
 
